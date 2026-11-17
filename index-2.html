@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desafio do Leite | Sociologia com Rapadura</title>
+<style>
+:root{--cream:#fff8e9;--brown:#70451f;--gold:#bd8748;--ink:#38291c;--card:#fffdf8}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#fff8e9,#f4e2bd);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);min-height:100vh;padding:20px}
+main{max-width:650px;margin:24px auto;background:var(--card);border:2px solid #ead5ae;border-radius:25px;padding:clamp(20px,5vw,36px);box-shadow:0 12px 35px #70451f18}
+header{text-align:center;background:#f7e9cb;border-radius:20px;padding:20px;color:var(--brown)}
+h1{font-size:clamp(1.5rem,5vw,2.2rem);margin:5px 0}header p{margin:6px 0 0;font-weight:650}
+.milk{font-size:3.5rem}.meta{display:flex;justify-content:space-between;gap:10px;margin:22px 0 12px;font-size:.9rem;font-weight:700;color:#79562f}
+.track{height:9px;background:#eee2ce;border-radius:20px;overflow:hidden;margin-bottom:25px}.bar{height:100%;background:var(--gold);width:0;transition:width .25s}
+h2{font-size:1.25rem;line-height:1.4}.answers{display:grid;gap:11px;margin:20px 0}
+.answer{width:100%;text-align:left;border:1.5px solid #e4d5bd;background:white;border-radius:13px;padding:15px;font:inherit;cursor:pointer;color:var(--ink);transition:.15s}
+.answer:hover{border-color:var(--gold);background:#fffaf0}.answer.selected{border:2px solid var(--gold);background:#fbefd9}.answer:disabled{cursor:default;opacity:1}
+button.primary{width:100%;border:0;border-radius:13px;background:var(--brown);color:white;padding:15px;font-size:1rem;font-weight:750;cursor:pointer}
+button.primary:disabled{opacity:.4;cursor:not-allowed}.feedback{padding:15px;border-radius:13px;background:#f6efdf;margin:15px 0;line-height:1.5}.feedback.good{border-left:5px solid #4c9864}.feedback.bad{border-left:5px solid #bd7548}
+footer{text-align:center;color:#8c7658;font-size:.8rem;margin-top:24px}
+.result{text-align:center;padding:20px 0}.points{font-size:2.6rem;color:#98652d;font-weight:850}
+@media(max-width:480px){body{padding:10px}main{margin:10px auto}}
+</style>
+</head>
+<body>
+<main>
+<header>
+ <div class="milk">🥛</div>
+ <h1>SOCIOLOGIA COM RAPADURA</h1>
+ <p>DESAFIO DO LEITE</p>
+ <p style="font-size:.9rem;font-weight:500">Quanto você sabe sobre leite e sociedade?</p>
+</header>
+<section id="game">
+ <div class="meta"><span id="progress">Pergunta 1 de 6</span><span id="score">⭐ 0 pontos</span></div>
+ <div class="track"><div class="bar" id="bar"></div></div>
+ <h2 id="question"></h2>
+ <div class="answers" id="answers"></div>
+ <div id="feedback" aria-live="polite"></div>
+ <button class="primary" id="action" disabled>Escolha uma resposta</button>
+</section>
+<section id="result" class="result" hidden>
+ <div style="font-size:3rem">🏆</div><h2>Resultado final!</h2>
+ <div class="points" id="finalscore">0/60</div>
+ <h2 id="message"></h2>
+ <p>Você concluiu o Desafio do Leite!</p>
+ <button class="primary" onclick="restart()">Jogar novamente</button>
+</section>
+<footer>Sociologia com Rapadura • Edição Leite</footer>
+</main>
+<script>
+const questions=[
+{q:"O leite chega à nossa mesa depois de passar por várias etapas. Qual conceito sociológico está relacionado a esse processo?",o:["Divisão social do trabalho","Isolamento social","Desigualdade natural","Ausência de cultura"],a:0,e:"A divisão social do trabalho acontece quando diferentes pessoas exercem funções na produção e distribuição de um produto."},
+{q:"Por que o leite pode ser considerado um produto cultural?",o:["Porque só existe em cidades grandes","Porque seu consumo e seus usos variam entre sociedades e costumes","Porque não tem relação com a sociedade","Porque é consumido da mesma forma em todo lugar"],a:1,e:"A alimentação também faz parte da cultura. Cada sociedade desenvolve hábitos e costumes alimentares próprios."},
+{q:"Quem participa da cadeia de produção do leite?",o:["Somente os consumidores","Apenas os donos dos supermercados","Produtores rurais, transportadores, trabalhadores da indústria e comerciantes","Somente os animais"],a:2,e:"A produção envolve diferentes trabalhadores e setores da economia."},
+{q:"Quando uma propaganda apresenta o leite como símbolo de saúde e bem-estar, ela está influenciando:",o:["Apenas a natureza","O comportamento e o consumo das pessoas","O clima","A organização dos animais"],a:1,e:"A publicidade influencia hábitos, desejos e decisões de consumo."},
+{q:"Qual situação representa uma desigualdade social na produção de leite?",o:["Todos terem acesso às mesmas oportunidades","Todos receberem a mesma remuneração","Pequenos produtores terem menos acesso a recursos e tecnologia","Todos trabalharem nas mesmas condições"],a:2,e:"As desigualdades econômicas podem fazer com que pequenos produtores tenham menos recursos e oportunidades."},
+{q:"Qual é a relação entre o leite e a economia?",o:["O leite não movimenta a economia","Sua produção gera empregos, renda e movimenta o comércio","Ele só tem importância cultural","Sua produção não envolve trabalhadores"],a:1,e:"A cadeia leiteira movimenta diferentes atividades econômicas e gera trabalho e renda."}
+,
+{q:"O que é cultura, na Sociologia?",o:["Somente aquilo que está nos museus","O conjunto de costumes, valores, crenças e práticas de um grupo","Apenas festas e comidas típicas","Uma característica que todas as sociedades têm exatamente igual"],a:1,e:"Cultura envolve os modos de viver, pensar, agir e se expressar de diferentes grupos sociais."},
+{q:"Por que o acesso ao leite e a outros alimentos pode ser uma questão social?",o:["Porque depende apenas do gosto de cada pessoa","Porque todas as famílias têm a mesma renda","Porque renda, preço e distribuição podem afetar o acesso aos alimentos","Porque alimentos não têm relação com desigualdade"],a:2,e:"As condições econômicas e a distribuição de recursos influenciam o acesso à alimentação."},
+{q:"O trabalho de uma família que cria vacas e vende leite é um exemplo de:",o:["Trabalho rural e produção de alimentos","Trabalho exclusivamente industrial","Atividade sem importância econômica","Consumo cultural apenas"],a:0,e:"A atividade leiteira pode fazer parte da agricultura familiar e da economia rural."},
+{q:"Quando diferentes regiões têm receitas e costumes próprios usando leite, isso demonstra:",o:["Que a cultura é igual em todos os lugares","Diversidade cultural","Que os costumes não mudam","Que a alimentação não tem significado social"],a:1,e:"A diversidade cultural aparece nos diferentes hábitos, receitas e tradições de cada região."},
+{q:"O que pode acontecer quando uma pequena propriedade rural não consegue competir com grandes empresas?",o:["As desigualdades econômicas podem aumentar","Todos passam a ter a mesma renda","A produção deixa de precisar de trabalhadores","O comércio deixa de existir"],a:0,e:"Diferenças de acesso a crédito, tecnologia e mercado podem colocar pequenos produtores em desvantagem."},
+{q:"Qual alternativa mostra consumo consciente de produtos como o leite?",o:["Comprar sempre mais do que será usado","Desperdiçar alimentos","Observar a validade, evitar desperdício e considerar a origem do produto","Ignorar as condições de produção"],a:2,e:"O consumo consciente considera necessidades, desperdício, impactos e condições de produção."},
+{q:"Qual instituição pode estabelecer regras de segurança e fiscalização para produtos alimentícios?",o:["Órgãos públicos de fiscalização","Somente os consumidores individualmente","Apenas as propagandas","Nenhuma instituição"],a:0,e:"O poder público estabelece normas e realiza fiscalização para proteger a saúde da população."},
+{q:"Por que estudar a produção do leite pode ajudar a entender a sociedade?",o:["Porque mostra relações de trabalho, economia, cultura e desigualdade","Porque explica somente a biologia dos animais","Porque não envolve relações humanas","Porque trata apenas de embalagens"],a:0,e:"Um produto cotidiano permite observar como diferentes pessoas, instituições e atividades estão conectadas."}
+
+];
+let index=0,score=0,selected=null,answered=false;
+const $=id=>document.getElementById(id);
+function render(){
+ const q=questions[index];selected=null;answered=false;
+ $("progress").textContent=`Pergunta ${index+1} de ${questions.length}`;
+ $("score").textContent=`⭐ ${score} pontos`;
+ $("bar").style.width=`${index/questions.length*100}%`;
+ $("question").textContent=q.q;$("feedback").innerHTML="";$("answers").innerHTML="";
+ q.o.forEach((v,i)=>{const b=document.createElement("button");b.className="answer";b.textContent=String.fromCharCode(65+i)+") "+v;b.onclick=()=>choose(i);$("answers").appendChild(b)});
+ $("action").disabled=true;$("action").textContent="Escolha uma resposta";$("action").onclick=submit;
+}
+function choose(i){if(answered)return;selected=i;[...$("answers").children].forEach((b,n)=>b.classList.toggle("selected",n===i));$("action").disabled=false;$("action").textContent="Confirmar resposta"}
+function submit(){
+ if(!answered){if(selected===null)return;answered=true;const q=questions[index],correct=selected===q.a;if(correct)score+=10;
+ [...$("answers").children].forEach((b,n)=>{b.disabled=true;if(n===q.a)b.classList.add("selected")});
+ $("score").textContent=`⭐ ${score} pontos`;
+ $("feedback").className="feedback "+(correct?"good":"bad");
+ $("feedback").innerHTML=`<strong>${correct?"Muito bem! Acertou! 🎉":"Não foi dessa vez! 😅"}</strong><br>${q.e}`;
+ $("action").textContent=index===questions.length-1?"Ver meu resultado":"Próxima pergunta →";
+ }else{index++;if(index===questions.length)finish();else render()}
+}
+function finish(){$("game").hidden=true;$("result").hidden=false;$("finalscore").textContent=`${score}/60 pontos`;$("bar").style.width="100%";$("message").textContent=score===60?"Especialista em leite! 🥛":score>=40?"Mandou muito bem! 🎉":score>=20?"Bom trabalho! 👏":"Continue aprendendo! 📚"}
+function restart(){index=0;score=0;$("result").hidden=true;$("game").hidden=false;render()}
+render();
+</script>
+</body>
+</html>
